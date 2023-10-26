@@ -8,7 +8,7 @@ using Service.Service.IService;
 
 namespace BookStoreAPI.Controller
 {
-    [Route("api/book")]
+    [Route("api/books")]
     [ApiController]
     public class BookController : ControllerBase
     {

@@ -24,7 +24,6 @@ namespace Service.Service
         {
             if (order != null)
             {
-               // var m_list = await GetAllOrderDetail();
                 order.Order_Detail_Id = Guid.NewGuid();
 
                 await UpdateBookQuantity(order.Book_Id, order.Order_Detail_Quantity);

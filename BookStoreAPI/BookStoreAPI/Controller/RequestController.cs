@@ -78,7 +78,7 @@ namespace BookStoreAPI.Controller
         [HttpPatch("updateUnDoneRequest")]
         public async Task<IActionResult> UnDoneRequest(Guid requestId, string note)
         {
-            var result = await _request.UpdateRequestUnDone(requestId, note);
+            var result = await _request.UpdateStatusToUnDone(requestId, note);
             if (result) return Ok("UnDone Request Success");
             return BadRequest("UnDone Request Fail");
         }

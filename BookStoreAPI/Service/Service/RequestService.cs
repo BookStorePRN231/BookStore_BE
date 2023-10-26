@@ -159,7 +159,7 @@ namespace Service.Service
             return false;
         }
 
-        public async Task<bool> UpdateRequestUnDone(Guid requestId, string note)
+        public async Task<bool> UpdateStatusToUnDone(Guid requestId, string note)
         {
             var m_update = await _unit.Request.GetById(requestId);
             if (m_update != null)
@@ -172,5 +172,18 @@ namespace Service.Service
             }
             return false;
         }
+        public async Task<bool> UpdateStatusToConfirm(Guid requestId)
+        {
+            var m_update = await _unit.Request.GetById(requestId);
+            if (m_update != null)
+            {
+                m_update.Is_Request_Status = 1;
+                _unit.Request.Update(m_update);
+                var result = _unit.Save();
+                if (result > 0) return true;
+            }
+            return false;
+        }
+
     }
 }
