@@ -6,6 +6,7 @@ using AutoMapper;
 using BookStoreAPI.Helper;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +35,26 @@ builder.Services.AddScoped<IImportationDetailService, ImportationDetailService>(
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IOrderDetailService, OrderDetailService>();
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+.AddCookie(options =>
+{
+    options.Cookie.Name = "eStoreLoginCookie";
+    options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None;
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
+    options.Events = new CookieAuthenticationEvents
+    {
+        OnRedirectToLogin = redirectContext =>
+        {
+            redirectContext.HttpContext.Response.StatusCode = 401;
+            return Task.CompletedTask;
+        },
+        OnRedirectToAccessDenied = redirectContext =>
+        {
+            redirectContext.HttpContext.Response.StatusCode = 401;
+            return Task.CompletedTask;
+        },
+    };
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -42,6 +63,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {

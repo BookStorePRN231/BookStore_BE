@@ -2,14 +2,19 @@
 using BookStoreAPI.Core.DTO;
 using BookStoreAPI.Core.Interface;
 using BookStoreAPI.Core.Model;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Service.Service.IService;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BookStoreAPI.Controller
 {
     [Route("api/user")]
     [ApiController]
+    [Authorize]
     public class UserController : ControllerBase
     {
         IUserService _user;
@@ -21,6 +26,8 @@ namespace BookStoreAPI.Controller
         }    
        
         [HttpGet("getUser")]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(500)]
         public async Task<IActionResult> GetUser()
         {
             var respone = await _user.GetAllUser();
@@ -62,16 +69,30 @@ namespace BookStoreAPI.Controller
             }
             return BadRequest("recover password fail");
         }
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDTO login)
         {
             if (login != null)
             {
                 var respone = await _user.CheckLogin(login);
-                if (respone != null)
+                var claims = new List<Claim>
                 {
-                    return Ok(respone);
-                }
+                    new Claim(ClaimTypes.Name, respone.User_Account),
+                    new Claim(ClaimTypes.NameIdentifier, respone.User_Id.ToString()),
+                    new Claim(ClaimTypes.Role, "admin")
+                };
+                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var authProperties = new AuthenticationProperties
+                {
+                    AllowRefresh = false,
+                    IsPersistent = true
+                };
+
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(claimsIdentity), authProperties);
+                respone.User_Password = "";
+                return StatusCode(200, respone);
             }
             return BadRequest("Accound or Pass Wrong!");
         }
