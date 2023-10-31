@@ -8,7 +8,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace BookStoreAPI.Controller
 {
-    [Route("api/inventory")]
+    [Route("api/inventories")]
     [ApiController]
     public class InventoryController : ControllerBase
     {
@@ -19,7 +19,7 @@ namespace BookStoreAPI.Controller
             _inventory = inventory;
             _map = mapper;
         }
-        [HttpGet("getInventory")]
+        [HttpGet("")]
         public async Task<IActionResult> GetInventory()
         {
             var respone = await _inventory.GetAllInventory();
@@ -29,7 +29,12 @@ namespace BookStoreAPI.Controller
             }
             return BadRequest("inventory don't exists");
         }
-        [HttpGet("searchInventory")]
+        /// <summary>
+        /// Search inventory by name book
+        /// </summary>
+        /// <param name="bookName"></param>
+        /// <returns></returns>
+        [HttpGet("{bookName}")]
         public async Task<IActionResult> SearchInventory(string bookName)
         {
             var respone = await _inventory.SearchInventory(bookName);
@@ -39,7 +44,7 @@ namespace BookStoreAPI.Controller
             }
             return BadRequest(bookName+" don't exists");
         }
-        [HttpPost("addInventory")]
+        [HttpPost("")]
         public async Task<IActionResult> AddInventory(InventoryDTO dto)
         {
             if (dto != null)
@@ -50,21 +55,30 @@ namespace BookStoreAPI.Controller
             }
             return BadRequest("Add Inventory Fail");
         }
-        [HttpPatch("deleteInventory")]
-        public async Task<IActionResult> DeleteInventory(Guid inventoryId)
+        /// <summary>
+        /// Delete or restore Inventory by inventoryId
+        /// </summary>
+        /// <param name="inventoryId"></param>
+        /// <param name="option">1.Delete, 2.Restore</param>
+        /// <returns></returns>
+        [HttpPatch("{inventoryId}")]
+        public async Task<IActionResult> DeleteBook(Guid inventoryId, Enum.EnumClass.CommonStatusOption option)
         {
-            var result = await _inventory.DeleteInventory(inventoryId);
-            if (result) return Ok("Delete Inventory Success");
-            return BadRequest("Delete Inventory Fail");
+            bool result = false;
+            switch ((int)option)
+            {
+                case 1:
+                    result = await _inventory.DeleteInventory(inventoryId);
+                    if (result) return Ok("Delete Inventory Success");
+                    break;
+                case 2:
+                    result = await _inventory.RestoreInventory(inventoryId);
+                    if (result) return Ok("Restore Inventory Success");
+                    break;
+            }
+            return BadRequest("Delete/Restore Inventory Failed");
         }
-        [HttpPatch("restoreInventory")]
-        public async Task<IActionResult> RestoreInventory(Guid inventoryId)
-        {
-            var result = await _inventory.RestoreInventory(inventoryId);
-            if (result) return Ok("Restore Inventory Success");
-            return BadRequest("Restore Inventory Fail");
-        }
-        [HttpDelete("removeInventory")]
+        [HttpDelete("")]
         public async Task<IActionResult> RemoveInventory(Guid inventoryId)
         {
             var result = await _inventory.RemoveInventory(inventoryId);

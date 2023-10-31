@@ -19,18 +19,31 @@ namespace BookStoreAPI.Controller
             _book = book;
             _mapper = mapper;
         }
-        
-        [HttpGet("getBook")]
-        public async Task<IActionResult> GetAllBook()
+        /// <summary>
+        /// Search by book name or get all books
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<IActionResult> GetAllBook(string? nameBook)
         {
-                var respone= await _book.GetAllBook();
-                if(respone != null)
-                {
-                    return Ok(respone);
-                }
-            return BadRequest("null");
+            if (string.IsNullOrEmpty(nameBook))
+            {
+                var response = await _book.GetAllBook();
+                if (response != null) return Ok(response);
+            }
+            else
+            {
+                var response = await _book.GetBookByName(nameBook);
+                if (response != null) return Ok(response);
+            }
+            return BadRequest("Book don't exist in the system");
         }
-        [HttpGet("getBookByCategory")]
+        /// <summary>
+        /// Get book by categoryId
+        /// </summary>
+        /// <param name="categoryId"></param>
+        /// <returns></returns>
+        [HttpGet("category/{categoryId}")]
         public async Task<IActionResult> GetAllBookByCategory(int categoryId)
         {
             var respone = await _book.GetBookByCategory(categoryId);
@@ -40,17 +53,12 @@ namespace BookStoreAPI.Controller
             }
             return BadRequest("null");
         }
-        [HttpGet("searchBook")]
-        public async Task<IActionResult> SearchBook(string nameBook)
-        {
-            var respone = await _book.GetBookByName(nameBook);
-            if (respone != null)
-            {
-                return Ok(respone);
-            }
-            return BadRequest("Book don't exists");
-        }
-        [HttpGet("getBookDetail")]
+        /// <summary>
+        /// Get book by bookId
+        /// </summary>
+        /// <param name="bookId"></param>
+        /// <returns></returns>
+        [HttpGet("{bookId}")]
         public async Task<IActionResult> GetBookDetail(Guid bookId)
         {
             var respone = await _book.GetBookById(bookId);
@@ -60,7 +68,12 @@ namespace BookStoreAPI.Controller
             }
             return BadRequest("Book don't exists");
         }
-        [HttpPost("createBook")]
+        /// <summary>
+        /// Add book
+        /// </summary>
+        /// <param name="dTO"></param>
+        /// <returns></returns>
+        [HttpPost]
         public async Task<IActionResult> CreateBook(BookDTO dTO)
         {
             if (dTO != null)
@@ -71,7 +84,12 @@ namespace BookStoreAPI.Controller
             }
             return BadRequest("Create Book Fail");
         }
-        [HttpPut("updateBook")]
+        /// <summary>
+        /// Update book
+        /// </summary>
+        /// <param name="bookDTO"></param>
+        /// <returns></returns>
+        [HttpPut]
         public async Task<IActionResult> UpdateBook(BookDetailDTO bookDTO)
         {
             if (bookDTO != null)
@@ -82,22 +100,31 @@ namespace BookStoreAPI.Controller
             }
             return BadRequest("Update Book Fail");
         }
-        [HttpPatch("deleteBook")]
-        public async Task<IActionResult> DeleteBook(Guid bookId)
+        /// <summary>
+        /// Delete or restore book by bookId
+        /// </summary>
+        /// <param name="bookId"></param>
+        /// <param name="option">1.Delete, 2.Restore</param>
+        /// <returns></returns>
+        [HttpPatch("{bookId}")]
+        public async Task<IActionResult> DeleteBook(Guid bookId,Enum.EnumClass.CommonStatusOption option)
         {
-                var result = await _book.DeleteBook(bookId);
-                if (result) return Ok("Delete Book Success");
-                 return BadRequest("Delete Book Fail");
-        }
-        [HttpPatch("restoreBook")]
-        public async Task<IActionResult> RestoreBook(Guid bookId)
-        {
-            var result = await _book.RestoreBook(bookId);
-            if (result) return Ok("Restore Book Success");
-            return BadRequest("Restore Book Fail");
+            bool result = false;
+            switch ((int)option)
+            {
+                case 1:
+                    result = await _book.DeleteBook(bookId);
+                    if (result) return Ok("Delete Book Success");
+                    break;
+                case 2:
+                    result = await _book.RestoreBook(bookId);
+                    if (result) return Ok("Restore Book Success");
+                    break;
+            }
+            return BadRequest("Delete/Restore Book Fail");
         }
        
-        [HttpDelete("removeBook")]
+        [HttpDelete]
         public async Task<IActionResult> RemoveBook(Guid bookId)
         {
             var result = await _book.RemoveBook(bookId);

@@ -5,7 +5,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace BookStoreAPI.Controller
 {
-    [Route("api/role")]
+    [Route("api/roles")]
     [ApiController]
     public class RoleController : ControllerBase
     {
@@ -14,7 +14,7 @@ namespace BookStoreAPI.Controller
         {
             _role = role;
         }
-        [HttpGet("getRole")]
+        [HttpGet()]
         public async Task<IActionResult> GetRole()
         {
             var respone = await _role.GetAllRole();
