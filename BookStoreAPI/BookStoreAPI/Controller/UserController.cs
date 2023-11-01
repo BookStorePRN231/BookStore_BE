@@ -12,9 +12,9 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace BookStoreAPI.Controller
 {
-    [Route("api/user")]
+    [Route("api/users")]
     [ApiController]
-    [Authorize]
+   // [Authorize]
     public class UserController : ControllerBase
     {
         IUserService _user;
@@ -23,23 +23,35 @@ namespace BookStoreAPI.Controller
         {
             _user = user;
             _mapper = mapper;
-        }    
-       
-        [HttpGet("getUser")]
+        }
+       /// <summary>
+       /// Search user by userName or get all users
+       /// </summary>
+       /// <param name="userName"></param>
+       /// <returns></returns>
+        [HttpGet()]
         [ProducesResponseType(400)]
         [ProducesResponseType(500)]
-        public async Task<IActionResult> GetUser()
+        public async Task<IActionResult> GetUser(string? userName)
         {
-            var respone = await _user.GetAllUser();
-            if (respone != null)
+            IEnumerable<User> response=null;
+            if (string.IsNullOrEmpty(userName))
             {
-                var user = _mapper.Map<IEnumerable<UserDTO>>(respone);
+                response = await _user.GetAllUser();
+            }
+            else
+            {
+                response = await _user.GetUserByName(userName);
+            }
+
+            if (response != null)
+            {
+                var user = _mapper.Map<IEnumerable<UserDTO>>(response);
                 return Ok(user);
             }
-            
-            return BadRequest("null");
+            return BadRequest("user don't exist in the system");
         }
-        [HttpGet("getUserById")]
+        [HttpGet("{userId}")]
         public async Task<IActionResult> GetUserById(Guid userId)
         {
             var respone = await _user.GetUserById(userId);
@@ -49,17 +61,12 @@ namespace BookStoreAPI.Controller
             }
             return BadRequest(userId + " don't exists");
         }
-        [HttpGet("getUserByName")]
-        public async Task<IActionResult> GetUserByName(string userName)
-        {
-            var respone = await _user.GetUserByName(userName);
-            if (respone != null)
-            {
-                return Ok(respone);
-            }
-            return BadRequest(userName+" don't exists");
-        }
-        [HttpGet("recoverPassword")]
+        /// <summary>
+        /// Recover password by email
+        /// </summary>
+        /// <param name="email"></param>
+        /// <returns></returns>
+        [HttpGet("recover/{email}")]
         public async Task<IActionResult> RecoverPass(string email)
         {
             var respone = await _user.RecoverPassword(email);
@@ -99,18 +106,24 @@ namespace BookStoreAPI.Controller
             }
             return BadRequest("Accound or Pass Wrong!");
         }
-        [HttpPost("createUserMoble")]
-        public async Task<IActionResult> CreateUserMobel(CreateUserDTO userDTO)
-        {
-            if(userDTO != null)
-            {
-                var user= _mapper.Map<User>(userDTO);
-                var result= await _user.CreateUserMoble(user);
-                if(result) return Ok("Create User Success");
-            }
-            return BadRequest("Create User Fail");
-        }
-        [HttpPost("createUserFE")]
+        //[HttpPost("createUserMoble")]
+        //public async Task<IActionResult> CreateUserMobel(CreateUserDTO userDTO)
+        //{
+        //    if(userDTO != null)
+        //    {
+        //        var user= _mapper.Map<User>(userDTO);
+        //        var result= await _user.CreateUserMoble(user);
+        //        if(result) return Ok("Create User Success");
+        //    }
+        //    return BadRequest("Create User Fail");
+        //}
+
+        /// <summary>
+        /// Add user
+        /// </summary>
+        /// <param name="userDTO"></param>
+        /// <returns></returns>
+        [HttpPost()]
         public async Task<IActionResult> CreateUserFE(UserDTO userDTO)
         {
             if (userDTO != null)
@@ -121,7 +134,7 @@ namespace BookStoreAPI.Controller
             }
             return BadRequest("Create User Fail");
         }
-        [HttpPut("updateUser")]
+        [HttpPut()]
         public async Task<IActionResult> UpdateUser(UserDTO userDTO)
         {
             if (userDTO != null)
@@ -132,29 +145,55 @@ namespace BookStoreAPI.Controller
             }
             return BadRequest("Update User Fail");
         }
-        [HttpPatch("updateRole")]
-        public async Task<IActionResult> DeleteUser(Guid userId, int roleID)
+        /// <summary>
+        /// Update role user by userId
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="option">1.Admin, 2.Staff, 3.User</param>
+        /// <returns></returns>
+        [HttpPatch("role/{userId}")]
+        public async Task<IActionResult> DeleteUser(Guid userId,Enum.EnumClass.RoleOption option)
         {
-            var result = await _user.UpdateRole(userId, roleID);
+            bool result = false;
+            switch((int)option)
+            {
+                case 1:
+                    result = await _user.UpdateRole(userId, (int)option);
+                    break;
+                case 2:
+                    result = await _user.UpdateRole(userId, (int)option);
+                    break;
+                case 3:
+                    result = await _user.UpdateRole(userId, (int)option);
+                    break;
+            }
             if (result) return Ok("Update Role Success");
             return BadRequest("Update Role Fail");
         }
-        [HttpPatch("deleteUser")]
-        public async Task<IActionResult> DeleteUser(Guid userId)
+        /// <summary>
+        /// Delete or restore User by userId
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="option">1.Delete, 2.Restore</param>
+        /// <returns></returns>
+        [HttpPatch("{userId}")]
+        public async Task<IActionResult> DeleteBook(Guid userId, Enum.EnumClass.CommonStatusOption option)
         {
-                var result = await _user.DeleteUser(userId);
-                if (result) return Ok("Delete User Success");
-                return BadRequest("Delete User Fail");
+            bool result = false;
+            switch ((int)option)
+            {
+                case 1:
+                    result = await _user.DeleteUser(userId);
+                    if (result) return Ok("Delete User Success");
+                    break;
+                case 2:
+                    result = await _user.RestoreUser(userId);
+                    if (result) return Ok("Restore User Success");
+                    break;
+            }
+            return BadRequest("Delete/Restore User Failed");
         }
-       
-        [HttpPatch("restoreUser")]
-        public async Task<IActionResult> RestoreUser(Guid userId)
-        {
-            var result = await _user.RestoreUser(userId);
-            if (result) return Ok("Restore User Success");
-            return BadRequest("Restore User Fail");
-        }
-        [HttpDelete("removeUser")]
+        [HttpDelete()]
         public async Task<IActionResult> RemoveUser(Guid userId)
         {
             var result = await _user.RemoveUser(userId);

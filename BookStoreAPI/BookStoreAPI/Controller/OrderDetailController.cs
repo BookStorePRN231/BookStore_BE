@@ -9,7 +9,7 @@ using static System.Net.Mime.MediaTypeNames;
 
 namespace BookStoreAPI.Controller
 {
-    [Route("api/orderDetail")]
+    [Route("api/order-detail")]
     [ApiController]
     public class OrderDetailController : ControllerBase
     {
@@ -20,37 +20,43 @@ namespace BookStoreAPI.Controller
             _map = mapper;
             _order = order;
         }
-        [HttpGet("searchOrder")]
-        public async Task<IActionResult> SearchOrder(string bookName)
+        /// <summary>
+        /// Search by book name or get all order detail 
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet()]
+        public async Task<IActionResult> GetOrderDetail(string? bookName)
         {
-            var respone = await _order.SearchOrder(bookName);
-            if (respone != null)
+            if (string.IsNullOrEmpty(bookName))
             {
-                return Ok(respone);
+                var respone = await _order.GetDisplayOrderDetail();
+                if (respone != null)
+                    return Ok(respone);
             }
-            return BadRequest(bookName + " don't exists");
+            else
+            {
+                var respone = await _order.SearchOrder(bookName);
+                if (respone != null)
+                    return Ok(respone);
+            }
+            return BadRequest("order detail don't exists");
         }
-        [HttpGet("getOrderDetail")]
-        public async Task<IActionResult> GetOrderDetail()
+        /// <summary>
+        /// Gey order detail by order id
+        /// </summary>
+        /// <param name="orderId"></param>
+        /// <returns></returns>
+        [HttpGet("{orderId}")]
+        public async Task<IActionResult> GetByOrderId(Guid orderId)
         {
-            var respone = await _order.GetDisplayOrderDetail();
+            var respone = await _order.GetOrderDetailByOrderId(orderId);
             if (respone != null)
             {
                 return Ok(respone);
             }
             return BadRequest("order detail don't exists");
         }
-        [HttpGet("getByOrderId")]
-        public async Task<IActionResult> GetByOrderId(Guid Order_id)
-        {
-            var respone = await _order.GetOrderDetailByOrderId(Order_id);
-            if (respone != null)
-            {
-                return Ok(respone);
-            }
-            return BadRequest("order detail don't exists");
-        }
-        [HttpPost("createOrderDetail")]
+        [HttpPost()]
         public async Task<IActionResult> CreateOrderDetail(OrderDetailDTO dto)
         {
             if (dto != null)

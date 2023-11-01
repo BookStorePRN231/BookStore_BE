@@ -6,7 +6,7 @@ using Service.Service.IService;
 
 namespace BookStoreAPI.Controller
 {
-    [Route("api/category")]
+    [Route("api/categories")]
     [ApiController]
     public class CategoryController : ControllerBase
     {
@@ -15,7 +15,7 @@ namespace BookStoreAPI.Controller
         {
             _cate = cate;
         }    
-        [HttpGet("getCategory")]
+        [HttpGet()]
         public async Task<IActionResult> GetCategory()
         {
                 var respone= await _cate.GetAllCategory();
@@ -25,13 +25,13 @@ namespace BookStoreAPI.Controller
                 }
             return BadRequest("null");
         }
-        [HttpGet("getCategoryById")]
-        public async Task<IActionResult> GetCategoryById(int CategoryId)
+        [HttpGet("{categoryId}")]
+        public async Task<IActionResult> GetCategoryById(int categoryId)
         {
-            var respone = await _cate.GetCategoryById(CategoryId);
-            if (respone != null)
+            var response = await _cate.GetCategoryById(categoryId);
+            if (response != null)
             {
-                return Ok(respone);
+                return Ok(response);
             }
             return BadRequest("Category don't exists!");
         }
