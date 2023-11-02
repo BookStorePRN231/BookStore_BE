@@ -15,7 +15,7 @@ namespace Service.Service.IService
         Task<bool> RemoveOrder(Guid orderId);
         Task<Order> SearchByOrderCode(string orderCode);
         // 0: deleted, 1: processing, 2: done, 3: undone, 4: just created, 5: confirm
-        Task<bool> CreateOrder(Order order);//status 4
+        Task<string?> CreateOrder(Order order);//status 4
         Task<bool> DeleteOrder(Guid orderId);//status 0
         Task<bool> RestoreOrder(Guid orderId);// back 2
         Task<bool> OrderSuccess(Guid orderId);//status 2

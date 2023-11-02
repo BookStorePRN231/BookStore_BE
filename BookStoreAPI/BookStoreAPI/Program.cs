@@ -34,6 +34,7 @@ builder.Services.AddScoped<IImportationService, ImportationService>();
 builder.Services.AddScoped<IImportationDetailService, ImportationDetailService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IOrderDetailService, OrderDetailService>();
+builder.Services.AddScoped<IMoMoService, MoMoService>();
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 .AddCookie(options =>

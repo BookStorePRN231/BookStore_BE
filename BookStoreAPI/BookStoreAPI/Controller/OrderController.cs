@@ -3,6 +3,7 @@ using BookStoreAPI.Core.DTO;
 using BookStoreAPI.Core.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Service.Service;
 using Service.Service.IService;
 using static System.Net.Mime.MediaTypeNames;
@@ -92,7 +93,7 @@ namespace BookStoreAPI.Controller
             {
                 var order=_map.Map<Order>(dto);
                 var result = await _order.CreateOrder(order);
-                if (result) return Ok("Add Order Success");
+                if (!result.IsNullOrEmpty()) return Ok(result);
             }
             return BadRequest("Add Order Fail");
         }
