@@ -83,25 +83,27 @@ namespace BookStoreAPI.Controller
             if (login != null)
             {
                 var respone = await _user.CheckLogin(login);
-                if (respone.Role_Id == 1)
+                if (respone != null)
                 {
-                    var claims = new List<Claim>
+                    if (respone.Role_Id == 1)
+                    {
+                        var claims = new List<Claim>
                     {
                         new Claim(ClaimTypes.Name, respone.User_Account),
                         new Claim(ClaimTypes.NameIdentifier, respone.User_Id.ToString()),
                         new Claim(ClaimTypes.Role, "admin")
                     };
-                    var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                    var authProperties = new AuthenticationProperties
-                    {
-                        AllowRefresh = false,
-                        IsPersistent = true
-                    };
+                        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                        var authProperties = new AuthenticationProperties
+                        {
+                            AllowRefresh = false,
+                            IsPersistent = true
+                        };
 
-                    await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
-                        new ClaimsPrincipal(claimsIdentity), authProperties);
+                        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
+                            new ClaimsPrincipal(claimsIdentity), authProperties);
+                    }
                 }
-                
                 return StatusCode(200, respone);
             }
             return BadRequest("Accound or Pass Wrong!");
