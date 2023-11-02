@@ -10,4 +10,8 @@
     <None Remove="Model\Role.cs~RFf28a9b5.TMP" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+  </ItemGroup>
+
 </Project>

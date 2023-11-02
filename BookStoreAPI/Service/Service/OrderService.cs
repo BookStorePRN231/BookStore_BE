@@ -14,14 +14,18 @@ namespace Service.Service
         IUnitOfWorkRepository _unit;
         IUserService _user;
         private readonly Order m_order;
+
+        private readonly IMoMoService _moMoService;
         // 0: deleted, 1: processing, 2: done, 3: undone, 4: just created
-        public OrderService(IUnitOfWorkRepository unit, IUserService user)
+        public OrderService(IUnitOfWorkRepository unit, IUserService user,IMoMoService moMoService)
         {
             _unit = unit;
             _user = user;
+            _moMoService = moMoService;
         }
-        public async Task<bool> CreateOrder(Order order)
+        public async Task<string?> CreateOrder(Order order)
         {
+            string url = null;
             if (order != null)
             {
                 order.Order_Id = Guid.NewGuid();
@@ -32,9 +36,16 @@ namespace Service.Service
                 order.Is_Order_Status = 4;
                 await _unit.Order.Add(order);
                 var result = _unit.Save();
-                if (result > 0) return true;
+                if (result > 0)
+                {
+                    var response = await _moMoService.CreateMomoPayment(order);
+                    if (response.Item1)
+                    {
+                        url = response.Item2;
+                    }
+                };
             }
-            return false;
+            return url;
         }
 
         private string CreateCodeOrder()
