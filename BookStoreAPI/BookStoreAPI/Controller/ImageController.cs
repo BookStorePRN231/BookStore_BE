@@ -7,7 +7,7 @@ using Service.Service.IService;
 
 namespace BookStoreAPI.Controller
 {
-    [Route("api/image")]
+    [Route("api/images")]
     [ApiController]
     public class ImageController : ControllerBase
     {
@@ -18,8 +18,12 @@ namespace BookStoreAPI.Controller
             _image = image;
             _map = mapper;
         }
-
-        [HttpGet("getImage")]
+        /// <summary>
+        /// Get images by bookId
+        /// </summary>
+        /// <param name="bookId"></param>
+        /// <returns></returns>
+        [HttpGet("{bookId}")]
         public async Task<IActionResult> GetImage(Guid bookId)
         {
             var respone = await _image.GetAllImage(bookId);
@@ -29,7 +33,7 @@ namespace BookStoreAPI.Controller
             }
             return BadRequest("null");
         }
-        [HttpPost("addImage")]
+        [HttpPost]
         public async Task<IActionResult> AddImage(ImageDTO imageDTO)
         {
             if (imageDTO != null)
@@ -40,7 +44,7 @@ namespace BookStoreAPI.Controller
             }
             return BadRequest("Add Image Fail");
         }
-        [HttpPut("updateImage")]
+        [HttpPut]
         public async Task<IActionResult> UpdateImage(ImageDTO imageDTO)
         {
             if (imageDTO != null)

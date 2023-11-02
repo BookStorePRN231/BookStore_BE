@@ -13,9 +13,10 @@ namespace Service.Service.IService
         Task<IEnumerable<BookingRequest>> GetAllRequest();
         Task<BookingRequest> GetRequestById(Guid requestId);
         Task<bool> UpdateRequest(BookingRequest request);
-        Task<bool> UpdateRequestUnDone(Guid requestId, string note);
+        Task<bool> UpdateStatusToUnDone(Guid requestId, string note);
         Task<bool> DeleteRequest(Guid requestId);
         Task<bool> RemoveRequest(Guid requestId);
         Task<bool> RestoreRequest(Guid requestId);
+        public Task<bool> UpdateStatusToConfirm(Guid requestId);
     }
 }
