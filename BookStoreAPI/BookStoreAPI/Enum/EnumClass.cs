@@ -28,7 +28,10 @@
         public enum CommonStatusOption
         {
             Delete=1,
-            Restore=2
+            Restore=2,
+                Confirm=3,
+                Undone=4
+
         }
         public enum RoleOption
         {

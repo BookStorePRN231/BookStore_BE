@@ -77,26 +77,14 @@ namespace BookStoreAPI.Controller
             return BadRequest("Update Request Fail");
         }
         /// <summary>
-        /// Update undone status request by requestId
-        /// </summary>
-        /// <param name="requestId"></param>
-        /// <param name="note"></param>
-        /// <returns></returns>
-        [HttpPatch("status/{requestId}")]
-        public async Task<IActionResult> UnDoneRequest(Guid requestId, string note)
-        {
-            var result = await _request.UpdateStatusToUnDone(requestId, note);
-            if (result) return Ok("UnDone Request Successful");
-            return BadRequest("UnDone Request Failed");
-        }
-        /// <summary>
         /// Delete or restore Request by requestId
         /// </summary>
         /// <param name="requestId"></param>
-        /// <param name="option">1.Delete, 2.Restore</param>
+        /// <param name="note">Note The reason cancel the request, update status undone </param>
+        /// <param name="option">1.Delete, 2.Restore, 3.Confirm, 4.Undone</param>
         /// <returns></returns>
         [HttpPatch("{requestId}")]
-        public async Task<IActionResult> DeleteBook(Guid requestId, Enum.EnumClass.CommonStatusOption option)
+        public async Task<IActionResult> DeleteBook(Guid requestId, string? note,Enum.EnumClass.CommonStatusOption option)
         {
             bool result = false;
             switch ((int)option)
@@ -109,8 +97,16 @@ namespace BookStoreAPI.Controller
                     result = await _request.RestoreRequest(requestId);
                     if (result) return Ok("Restore Request Successful");
                     break;
+                case 3:
+                    result = await _request.UpdateStatusToConfirm(requestId);
+                    if (result) return Ok("Confirm Request Successful");
+                    break;
+                case 4:
+                    result = await _request.UpdateStatusToUnDone(requestId, note);
+                    if (result) return Ok("UnDone Request Successful");
+                    break;
             }
-            return BadRequest("Delete/Restore Request Failed");
+            return BadRequest("Update Status Request Failed");
         }
         [HttpDelete()]
         public async Task<IActionResult> RemoveRequest(Guid requestId)

@@ -20,7 +20,7 @@ namespace BookStoreAPI.Core.Model
         public DateTime Request_Date_Done { get; set; }
         public string Request_Note { get; set; }
         public bool Is_RequestBook_Status { get; set; }
-        public int Is_Request_Status { get; set; }
+        public int Is_Request_Status { get; set; }//0. delete, 1. processing, 2. done, 3. undone, 4.confirm
         public Book Book { get; set; }
     }
 }

@@ -32,7 +32,7 @@ namespace Service.Service
                         //nếu là book cũ, sẽ trả lại id đã truyền xuống
                         request.Book_Id = await GetBookId(request.Book_Id);
                         request.Request_Date = DateTime.Now;
-                        request.Is_Request_Status = 1;
+                        request.Is_Request_Status = 4;
                         await _unit.Request.Add(request);
                         var result = _unit.Save();
                         if (result > 0) return true;
@@ -53,7 +53,7 @@ namespace Service.Service
                         //get image
                         var listImage = await _unit.Images.GetAll();
                         request.Request_Image_Url = GetUrl(listImage, book.Book_Id);
-                        request.Is_Request_Status = 1;
+                        request.Is_Request_Status = 4;
                         await _unit.Request.Add(request);
                         var result = _unit.Save();
                         if (result > 0) return true;
@@ -159,7 +159,7 @@ namespace Service.Service
             return false;
         }
 
-        public async Task<bool> UpdateStatusToUnDone(Guid requestId, string note)
+        public async Task<bool> UpdateStatusToUnDone(Guid requestId, string? note)
         {
             var m_update = await _unit.Request.GetById(requestId);
             if (m_update != null)
@@ -184,6 +184,7 @@ namespace Service.Service
             }
             return false;
         }
+
 
     }
 }
